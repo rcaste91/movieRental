@@ -56,6 +56,18 @@ public class Users {
 	
 	
 
+	public Role getRole() {
+		return role;
+	}
+
+
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+
+
 	public List<Rent> getRents() {
 		return rents;
 	}
