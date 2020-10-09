@@ -44,9 +44,6 @@ public class Movie {
 	private List<MovieImage> movieImages;
 	
 	@OneToMany(mappedBy = "movie")
-	private List<MovieLog> movieLog;
-	
-	@OneToMany(mappedBy = "movie")
 	private List<MovieLike> movieLike;
 	
 	@OneToMany(mappedBy = "movie")
@@ -78,19 +75,6 @@ public class Movie {
 	public void setSales(List<Sale> sales) {
 		this.sales = sales;
 	}
-
-
-	public List<MovieLog> getMovieLog() {
-		return movieLog;
-	}
-
-
-
-	public void setMovieLog(List<MovieLog> movieLog) {
-		this.movieLog = movieLog;
-	}
-
-
 
 	public List<MovieLike> getMovieLike() {
 		return movieLike;

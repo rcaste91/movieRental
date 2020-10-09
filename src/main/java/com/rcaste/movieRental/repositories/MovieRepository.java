@@ -6,4 +6,5 @@ import com.rcaste.movieRental.models.Movie;
 
 public interface MovieRepository extends JpaRepository<Movie, Long>{
 
+	
 }

@@ -24,9 +24,8 @@ public class MovieLog {
     @Column(name = "movie_log_id")
 	private Long movieLogId;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="movie_id")
-	private Movie movie;
+	@Column(name = "movie_id")
+	private int movie;
 	
 	@Column(name = "title")
 	private String title;
@@ -56,12 +55,12 @@ public class MovieLog {
 	}
 
 
-	public Movie getMovie() {
+	public int getMovie() {
 		return movie;
 	}
 
 
-	public void setMovie(Movie movie) {
+	public void setMovie(int movie) {
 		this.movie = movie;
 	}
 

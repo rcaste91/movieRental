@@ -30,13 +30,17 @@ public class MovieImage {
 	@JoinColumn(name="movie_id")
 	private Movie movie;
 		
-	@Lob
-    @Type(type="org.hibernate.type.BinaryType")
+
     @Column(name = "movie_photo")
-    private byte[] moviePhoto;
+    private String moviePhoto;
 	
 	public MovieImage() {
 		
+	}
+	
+	public MovieImage(Movie movie, String moviePhoto) {
+		this.movie=movie;
+		this.moviePhoto=moviePhoto;
 	}
 
 	public Long getImageId() {
@@ -55,11 +59,11 @@ public class MovieImage {
 		this.movie = movie;
 	}
 
-	public byte[] getMoviePhoto() {
+	public String getMoviePhoto() {
 		return moviePhoto;
 	}
 
-	public void setMoviePhoto(byte[] moviePhoto) {
+	public void setMoviePhoto(String moviePhoto) {
 		this.moviePhoto = moviePhoto;
 	}
 	
