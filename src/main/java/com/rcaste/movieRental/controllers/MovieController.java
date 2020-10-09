@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rcaste.movieRental.logic.MovieLogic;
 import com.rcaste.movieRental.models.Movie;
 import com.rcaste.movieRental.models.MovieImage;
+import com.rcaste.movieRental.models.MovieImageRequest;
 import com.rcaste.movieRental.models.MovieRequest;
 import com.rcaste.movieRental.repositories.MovieImageRepository;
 import com.rcaste.movieRental.repositories.MovieLogRepository;
@@ -119,7 +120,6 @@ public class MovieController {
 		Optional<Movie> searchMovie = mRepository.findById(id);
 		if(searchMovie.get() != null) {
 			
-			//iRepository.deleteAllMovieImages(id.intValue());
 			iRepository.deleteAll(searchMovie.get().getMovieImages());
 			mRepository.delete(searchMovie.get());
 			response.setTitle("Movie Deleted");
@@ -135,6 +135,55 @@ public class MovieController {
 		return mRepository.findAll();
 	}
 	
+	/**
+	 * Agrega nuevas imagenes para peliculas
+	 * @param id ID de Movie a la cual agregar nuevas imagenes
+	 * @param movieRequest JSON de entrada con url de nuevas imagenes
+	 * @return
+	 */
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@RequestMapping(value="movies/img/{id}", method=RequestMethod.PATCH)
+	public MovieRequest addImage(@PathVariable Long id, @RequestBody MovieRequest movieRequest) {
+		
+		MovieRequest response = new MovieRequest();
+		
+		Optional<Movie> searchMovie = mRepository.findById(id);
+		if(searchMovie.get() != null) {
+			Movie movie = searchMovie.get();
+			List<MovieImage> newImages = movieLogic.requestToMovieImage(movie, movieRequest);
+			saveImages(newImages);
+			newImages.clear();
+			newImages=iRepository.getImagesByMovieId(id.intValue());
+			response = movieLogic.responseToMovie(movie,newImages);
+		}
+		
+		return response;
+	}
+	
+	/**
+	 * Borra una imagen asociada a una Movie
+	 * @param id ID de imagen 
+	 * @return mensaje confirmando borrado de mensaje
+	 */
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@RequestMapping(value="movies/img/{id}", method=RequestMethod.DELETE)
+	public MovieImageRequest deleteImage(@PathVariable Long id) {
+		
+		MovieImageRequest response = new MovieImageRequest();
+		
+		if(iRepository.findById(id).get() != null) {
+			iRepository.deleteById(id);
+			response.setImage("Image Deleted");
+		}
+		
+		return response;
+	}
+	
+	/**
+	 * Guarda Lista de imagenes en BD
+	 * @param images lista de imagenes ya asociadas con una Movie
+	 * @return Lista de imagenes almacenada para mostrar en confirmacion
+	 */
 	private List<MovieImage> saveImages(List<MovieImage> images){
 		
 		List<MovieImage> imagesReturn = new ArrayList<MovieImage>();
@@ -145,6 +194,8 @@ public class MovieController {
 		
 		return imagesReturn;
 	}
+	
+	
 	
 	
 	

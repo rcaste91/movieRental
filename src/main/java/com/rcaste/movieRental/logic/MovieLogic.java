@@ -119,6 +119,12 @@ public class MovieLogic {
 		return updateMovie;
 	}
 	
+	/**
+	 * Prepara Movie para actualizar campo Avaliable
+	 * @param currentMovie MOVIE que sera actualizada
+	 * @param request campo de JSON de entrada
+	 * @return MOVIE actualizada para ser escrita en BD
+	 */
 	public Movie prepareUpdateAval(Movie currentMovie, MovieRequest request) {
 		
 		Movie updateMovie = currentMovie;
