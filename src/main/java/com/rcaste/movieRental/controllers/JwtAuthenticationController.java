@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rcaste.movieRental.config.JwtTokenUtil;
-import com.rcaste.movieRental.models.JwtRequest;
-import com.rcaste.movieRental.models.JwtResponse;
+import com.rcaste.movieRental.models.requests.JwtRequest;
+import com.rcaste.movieRental.models.requests.JwtResponse;
 import com.rcaste.movieRental.service.JwtUserDetailsService;
 
 @RestController
@@ -44,6 +44,11 @@ public class JwtAuthenticationController {
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
 		return ResponseEntity.ok(new JwtResponse(token));
+	}
+	
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String status() {
+		return "Movie Rental App is online";
 	}
 	
 

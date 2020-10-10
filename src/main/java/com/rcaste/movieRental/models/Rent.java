@@ -33,11 +33,20 @@ public class Rent {
 	@JoinColumn(name="user_id")
 	private Users user;
 	
+	@Column(name = "rent_date")
+	 private Date rentDate;
+	
 	 @Column(name = "return_date")
 	 private Date returnDate;
 	 
 	 @Column(name = "user_return_date")
 	 private Date userReturnDate;
+	 
+	 @Column(name = "subtotal")
+	 private float subtotal;
+	 
+	 @Column(name = "total")
+	 private float total;
 	 
 	 public Rent() {
 		 
@@ -81,6 +90,30 @@ public class Rent {
 
 	public void setUserReturnDate(Date userReturnDate) {
 		this.userReturnDate = userReturnDate;
+	}
+
+	public Date getRentDate() {
+		return rentDate;
+	}
+
+	public void setRentDate(Date rentDate) {
+		this.rentDate = rentDate;
+	}
+
+	public float getTotal() {
+		return total;
+	}
+
+	public void setTotal(float total) {
+		this.total = total;
+	}
+
+	public float getSubtotal() {
+		return subtotal;
+	}
+
+	public void setSubtotal(float subtotal) {
+		this.subtotal = subtotal;
 	}
 	 
 	 

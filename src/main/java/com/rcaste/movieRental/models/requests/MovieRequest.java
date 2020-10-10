@@ -1,4 +1,4 @@
-package com.rcaste.movieRental.models;
+package com.rcaste.movieRental.models.requests;
 
 import java.util.List;
 

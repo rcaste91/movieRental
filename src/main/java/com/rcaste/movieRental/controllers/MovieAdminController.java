@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rcaste.movieRental.logic.MovieLogic;
 import com.rcaste.movieRental.models.Movie;
 import com.rcaste.movieRental.models.MovieImage;
-import com.rcaste.movieRental.models.MovieImageRequest;
-import com.rcaste.movieRental.models.MovieRequest;
+import com.rcaste.movieRental.models.requests.MovieImageRequest;
+import com.rcaste.movieRental.models.requests.MovieRequest;
 import com.rcaste.movieRental.repositories.MovieImageRepository;
 import com.rcaste.movieRental.repositories.MovieLogRepository;
 import com.rcaste.movieRental.repositories.MovieRepository;
 
 @RestController
 @RequestMapping("api/v1/")
-public class MovieController {
+public class MovieAdminController {
 	
 	@Autowired
 	private MovieRepository mRepository;
@@ -36,7 +36,7 @@ public class MovieController {
 	
 	private MovieLogic movieLogic;
 	
-	public MovieController() {
+	public MovieAdminController() {
 		// TODO Auto-generated constructor stub
 		movieLogic=new MovieLogic();
 	}
@@ -74,7 +74,7 @@ public class MovieController {
 		MovieRequest response = new MovieRequest();
 		Optional<Movie> searchMovie = mRepository.findById(id);
 		
-		if(searchMovie.get() != null) {
+		if(!searchMovie.isEmpty()) {
 			Movie movieResponse = mRepository.saveAndFlush(movieLogic.prepareUpdate(searchMovie.get(), movieRequest));
 			logRepository.saveAndFlush(movieLogic.logUpdate(movieResponse));
 			response=movieLogic.responseToMovie(movieResponse, movieResponse.getMovieImages());
@@ -98,7 +98,8 @@ public class MovieController {
 		MovieRequest response = new MovieRequest();
 		
 		Optional<Movie> searchMovie = mRepository.findById(id);
-		if(searchMovie.get() != null) {
+		
+		if(!searchMovie.isEmpty()) {
 			Movie movieResponse = mRepository.saveAndFlush(movieLogic.prepareUpdateAval(searchMovie.get(), movieRequest));
 			response=movieLogic.responseToMovie(movieResponse, movieResponse.getMovieImages());
 		}
@@ -118,7 +119,8 @@ public class MovieController {
 		MovieRequest response = new MovieRequest();
 		
 		Optional<Movie> searchMovie = mRepository.findById(id);
-		if(searchMovie.get() != null) {
+		
+		if(!searchMovie.isEmpty()) {
 			
 			iRepository.deleteAll(searchMovie.get().getMovieImages());
 			mRepository.delete(searchMovie.get());
@@ -128,12 +130,6 @@ public class MovieController {
 		return response;
 	}
 	
-	@PreAuthorize("hasRole('ROLE_USER') OR hasRole('ROLE_ADMIN')")
-	@RequestMapping(value="movies", method=RequestMethod.GET)
-	public List<Movie> listMovies() {
-	
-		return mRepository.findAll();
-	}
 	
 	/**
 	 * Agrega nuevas imagenes para peliculas
@@ -148,7 +144,9 @@ public class MovieController {
 		MovieRequest response = new MovieRequest();
 		
 		Optional<Movie> searchMovie = mRepository.findById(id);
-		if(searchMovie.get() != null) {
+		
+		
+		if(!searchMovie.isEmpty()) {
 			Movie movie = searchMovie.get();
 			List<MovieImage> newImages = movieLogic.requestToMovieImage(movie, movieRequest);
 			saveImages(newImages);
@@ -171,7 +169,8 @@ public class MovieController {
 		
 		MovieImageRequest response = new MovieImageRequest();
 		
-		if(iRepository.findById(id).get() != null) {
+		
+		if(!iRepository.findById(id).isEmpty()) {
 			iRepository.deleteById(id);
 			response.setImage("Image Deleted");
 		}

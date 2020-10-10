@@ -6,9 +6,9 @@ import java.util.List;
 
 import com.rcaste.movieRental.models.Movie;
 import com.rcaste.movieRental.models.MovieImage;
-import com.rcaste.movieRental.models.MovieImageRequest;
 import com.rcaste.movieRental.models.MovieLog;
-import com.rcaste.movieRental.models.MovieRequest;
+import com.rcaste.movieRental.models.requests.MovieImageRequest;
+import com.rcaste.movieRental.models.requests.MovieRequest;
 
 public class MovieLogic {
 	
