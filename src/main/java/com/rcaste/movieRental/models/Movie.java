@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -44,12 +45,15 @@ public class Movie {
 	private List<MovieImage> movieImages;
 	
 	@OneToMany(mappedBy = "movie")
+	@JsonIgnore
 	private List<MovieLike> movieLike;
 	
 	@OneToMany(mappedBy = "movie")
+	@JsonIgnore
 	private List<Rent> rents;
 	
 	@OneToMany(mappedBy = "movie")
+	@JsonIgnore
 	private List<Sale> sales;
 	
 	public Movie() {

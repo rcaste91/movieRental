@@ -10,8 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
@@ -25,8 +24,10 @@ public class MovieImage {
     @Column(name = "image_id")
 	private Long imageId;
 	
+
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="movie_id")
+	@JsonIgnore
 	private Movie movie;
 		
 
@@ -50,6 +51,7 @@ public class MovieImage {
 		this.imageId = imageId;
 	}
 
+	@JsonIgnore
 	public Movie getMovie() {
 		return movie;
 	}
