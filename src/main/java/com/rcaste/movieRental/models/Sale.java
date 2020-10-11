@@ -22,7 +22,7 @@ public class Sale {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sale_id")
-	private Long rentId;
+	private Long saleId;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="movie_id")
@@ -46,12 +46,12 @@ public class Sale {
 		 
 	 }
 
-	public Long getRentId() {
-		return rentId;
+	public Long getSaleId() {
+		return saleId;
 	}
 
-	public void setRentId(Long rentId) {
-		this.rentId = rentId;
+	public void setSaleId(Long rentId) {
+		this.saleId = rentId;
 	}
 
 	public Movie getMovie() {

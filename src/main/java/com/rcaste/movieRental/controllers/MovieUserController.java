@@ -1,14 +1,9 @@
 package com.rcaste.movieRental.controllers;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,14 +13,16 @@ import com.rcaste.movieRental.logic.MovieUserLogic;
 import com.rcaste.movieRental.models.Movie;
 import com.rcaste.movieRental.models.MovieLike;
 import com.rcaste.movieRental.models.Rent;
+import com.rcaste.movieRental.models.Sale;
 import com.rcaste.movieRental.models.Users;
-import com.rcaste.movieRental.models.requests.MovieRequest;
 import com.rcaste.movieRental.models.requests.RentRequest;
+import com.rcaste.movieRental.models.requests.SaleRequest;
 import com.rcaste.movieRental.models.requests.LikeMovieRequest;
 import com.rcaste.movieRental.repositories.ConstantsRepository;
 import com.rcaste.movieRental.repositories.MovieLikeRepository;
 import com.rcaste.movieRental.repositories.MovieRepository;
 import com.rcaste.movieRental.repositories.RentRepository;
+import com.rcaste.movieRental.repositories.SaleRepository;
 import com.rcaste.movieRental.repositories.UsersRepository;
 
 @RestController
@@ -46,6 +43,9 @@ public class MovieUserController {
 	
 	@Autowired
 	private ConstantsRepository cRepository;
+	
+	@Autowired
+	private SaleRepository sRepository;
 	
 	private MovieUserLogic logic;
 	
@@ -85,11 +85,16 @@ public class MovieUserController {
 		
 		if( (!movie.isEmpty()) && (!user.isEmpty()) ) {
 			
-			Rent prepareRent =logic.prepareRentInsert(movieRent, movie.get(), user.get());
+			int stock=movie.get().getStock();
 			
-			if(prepareRent.getSubtotal()>0) {
-				Rent rent= rRepository.saveAndFlush(prepareRent);
-				response=logic.prepareRentResponse(rent);
+			if(stock >=1) {
+				Rent prepareRent =logic.prepareRentInsert(movieRent, movie.get(), user.get());
+				
+				if(prepareRent.getSubtotal()>0) {
+					Rent rent= rRepository.saveAndFlush(prepareRent);
+					updateMovieStock(movie.get(), 1);
+					response=logic.prepareRentCreateResponse(rent);
+				}
 			}
 			
 		}
@@ -110,10 +115,44 @@ public class MovieUserController {
 		if(!rentFind.isEmpty()) {
 			
 			Rent rentUpdate = rRepository.saveAndFlush(logic.prepareRentUpdate(movieRent, rentFind.get(),delay));
-			response=logic.prepareRentResponse(rentUpdate);
+			updateMovieStock(rentFind.get().getMovie(), -1);
+			response=logic.prepareRentUpdateResponse(rentUpdate);
 		}
 		
 		return response;
+	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@RequestMapping(value="movies/sell", method=RequestMethod.POST)
+	public SaleRequest sellMovie(@RequestBody SaleRequest request) {
+		
+		SaleRequest response = new SaleRequest();
+		
+		Optional<Movie> movieFind = mRepository.findById((long) request.getMovieId());
+		Optional<Users> userFind = uRepository.findById((long) request.getUserId());
+		
+		if( (!movieFind.isEmpty()) && (!userFind.isEmpty()) ) {
+			
+			int stock=movieFind.get().getStock();
+			
+			if(request.getQuantity()<=stock) {
+				
+				Sale insertSale=logic.prepareSaleInsert(request, movieFind.get(), userFind.get(), movieFind.get().getSalePrice());
+				Sale movieSold = sRepository.saveAndFlush(insertSale);
+				updateMovieStock(movieFind.get(), request.getQuantity());
+				response = logic.prepareSaleResponse(movieSold);
+			}
+			
+			
+		}
+		
+		return response;
+	}
+	
+	private void updateMovieStock(Movie m, int quantity) {
+		
+		m.setStock( m.getStock()-quantity );
+		mRepository.saveAndFlush(m);
 	}
 
 }

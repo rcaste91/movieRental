@@ -7,9 +7,9 @@ public class RentRequest {
 	private int rentId;
 	private int userId;
 	private int movieId;
-	private Date rentDate;
-	private Date dateReturn;
-	private Date actualReturn;
+	private String rentDate;
+	private String dateReturn;
+	private String actualReturn;
 	private float subtotal;
 	private float total;
 	
@@ -41,19 +41,19 @@ public class RentRequest {
 		this.movieId = movieId;
 	}
 
-	public Date getDateReturn() {
+	public String getDateReturn() {
 		return dateReturn;
 	}
 
-	public void setDateReturn(Date dateReturn) {
+	public void setDateReturn(String dateReturn) {
 		this.dateReturn = dateReturn;
 	}
 
-	public Date getActualReturn() {
+	public String getActualReturn() {
 		return actualReturn;
 	}
 
-	public void setActualReturn(Date actualReturn) {
+	public void setActualReturn(String actualReturn) {
 		this.actualReturn = actualReturn;
 	}
 
@@ -73,11 +73,11 @@ public class RentRequest {
 		this.total = total;
 	}
 
-	public Date getRentDate() {
+	public String getRentDate() {
 		return rentDate;
 	}
 
-	public void setRentDate(Date rentDate) {
+	public void setRentDate(String rentDate) {
 		this.rentDate = rentDate;
 	}
 
