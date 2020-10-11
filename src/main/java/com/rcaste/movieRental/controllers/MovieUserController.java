@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rcaste.movieRental.controllers.errors.MovieNotFoundException;
+import com.rcaste.movieRental.controllers.errors.UserNotFoundException;
 import com.rcaste.movieRental.logic.MovieUserLogic;
 import com.rcaste.movieRental.models.Movie;
 import com.rcaste.movieRental.models.MovieLike;
@@ -61,13 +63,15 @@ public class MovieUserController {
 		
 		LikeMovieRequest response = new LikeMovieRequest();
 		
-		Optional<Movie> movie = mRepository.findById((long) movieLike.getMovieId());
-		Optional<Users> user = uRepository.findById((long) movieLike.getUserId());
+		Movie movie = mRepository.findById((long) movieLike.getMovieId())
+				.orElseThrow( () -> new MovieNotFoundException((long) movieLike.getMovieId()) );
 		
-		if((!movie.isEmpty()) && (!user.isEmpty())) {
-			MovieLike like=mlRepository.saveAndFlush(logic.prepareInsert(movie.get(), user.get()));
-			response=logic.prepareLikeResponse(like);
-		}
+		
+		Users user = uRepository.findById((long) movieLike.getUserId())
+				.orElseThrow(() -> new UserNotFoundException((long) movieLike.getUserId()));
+		
+		MovieLike like=mlRepository.saveAndFlush(logic.prepareInsert(movie, user));
+		response=logic.prepareLikeResponse(like);
 		
 		return response;
 		
@@ -79,26 +83,25 @@ public class MovieUserController {
 		
 		RentRequest response = new RentRequest();
 		
-		Optional<Movie> movie=mRepository.findById((long) movieRent.getMovieId());
-		Optional<Users> user = uRepository.findById((long) movieRent.getUserId());
+		Movie movie = mRepository.findById((long) movieRent.getMovieId())
+				.orElseThrow( () -> new MovieNotFoundException((long) movieRent.getMovieId()) );
 		
 		
-		if( (!movie.isEmpty()) && (!user.isEmpty()) ) {
+		Users user = uRepository.findById((long) movieRent.getUserId())
+				.orElseThrow(() -> new UserNotFoundException((long) movieRent.getUserId()));
+		
+		int stock=movie.getStock();
+		
+		if(stock >=1) {
+			Rent prepareRent =logic.prepareRentInsert(movieRent, movie, user);
 			
-			int stock=movie.get().getStock();
-			
-			if(stock >=1) {
-				Rent prepareRent =logic.prepareRentInsert(movieRent, movie.get(), user.get());
-				
-				if(prepareRent.getSubtotal()>0) {
-					Rent rent= rRepository.saveAndFlush(prepareRent);
-					updateMovieStock(movie.get(), 1);
-					response=logic.prepareRentCreateResponse(rent);
-				}
+			if(prepareRent.getSubtotal()>0) {
+				Rent rent= rRepository.saveAndFlush(prepareRent);
+				updateMovieStock(movie, 1);
+				response=logic.prepareRentCreateResponse(rent);
 			}
-			
 		}
-
+			
 		return response;
 		
 	}
@@ -110,14 +113,12 @@ public class MovieUserController {
 		RentRequest response = new RentRequest();
 		float delay=cRepository.findDelay("delay");
 		
-		Optional<Rent> rentFind = rRepository.findById((long) movieRent.getRentId());
+		Rent rentFind = rRepository.findById((long) movieRent.getRentId())
+				.orElseThrow(() -> new UserNotFoundException((long) movieRent.getRentId()));
 		
-		if(!rentFind.isEmpty()) {
-			
-			Rent rentUpdate = rRepository.saveAndFlush(logic.prepareRentUpdate(movieRent, rentFind.get(),delay));
-			updateMovieStock(rentFind.get().getMovie(), -1);
-			response=logic.prepareRentUpdateResponse(rentUpdate);
-		}
+		Rent rentUpdate = rRepository.saveAndFlush(logic.prepareRentUpdate(movieRent, rentFind,delay));
+		updateMovieStock(rentFind.getMovie(), -1);
+		response=logic.prepareRentUpdateResponse(rentUpdate);
 		
 		return response;
 	}
@@ -128,22 +129,21 @@ public class MovieUserController {
 		
 		SaleRequest response = new SaleRequest();
 		
-		Optional<Movie> movieFind = mRepository.findById((long) request.getMovieId());
-		Optional<Users> userFind = uRepository.findById((long) request.getUserId());
+		Movie movieFind = mRepository.findById((long) request.getMovieId())
+				.orElseThrow( () -> new MovieNotFoundException((long) request.getMovieId()) );
 		
-		if( (!movieFind.isEmpty()) && (!userFind.isEmpty()) ) {
+		
+		Users userFind = uRepository.findById((long) request.getUserId())
+				.orElseThrow(() -> new UserNotFoundException((long) request.getUserId()));
+		
+		int stock=movieFind.getStock();
+		
+		if(request.getQuantity()<=stock) {
 			
-			int stock=movieFind.get().getStock();
-			
-			if(request.getQuantity()<=stock) {
-				
-				Sale insertSale=logic.prepareSaleInsert(request, movieFind.get(), userFind.get(), movieFind.get().getSalePrice());
-				Sale movieSold = sRepository.saveAndFlush(insertSale);
-				updateMovieStock(movieFind.get(), request.getQuantity());
-				response = logic.prepareSaleResponse(movieSold);
-			}
-			
-			
+			Sale insertSale=logic.prepareSaleInsert(request, movieFind, userFind, movieFind.getSalePrice());
+			Sale movieSold = sRepository.saveAndFlush(insertSale);
+			updateMovieStock(movieFind, request.getQuantity());
+			response = logic.prepareSaleResponse(movieSold);
 		}
 		
 		return response;

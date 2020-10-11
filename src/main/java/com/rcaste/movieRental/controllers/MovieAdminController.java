@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rcaste.movieRental.controllers.errors.ImageNotFoundException;
+import com.rcaste.movieRental.controllers.errors.MovieNotFoundException;
 import com.rcaste.movieRental.logic.MovieLogic;
 import com.rcaste.movieRental.models.Movie;
 import com.rcaste.movieRental.models.MovieImage;
@@ -72,13 +76,13 @@ public class MovieAdminController {
 	public MovieRequest update(@PathVariable Long id, @RequestBody MovieRequest movieRequest) {
 		
 		MovieRequest response = new MovieRequest();
-		Optional<Movie> searchMovie = mRepository.findById(id);
 		
-		if(!searchMovie.isEmpty()) {
-			Movie movieResponse = mRepository.saveAndFlush(movieLogic.prepareUpdate(searchMovie.get(), movieRequest));
-			logRepository.saveAndFlush(movieLogic.logUpdate(movieResponse));
-			response=movieLogic.responseToMovie(movieResponse, movieResponse.getMovieImages());
-		}
+		Movie searchMovie = mRepository.findById(id)
+				.orElseThrow( () -> new MovieNotFoundException(id) );
+		
+		Movie movieResponse = mRepository.saveAndFlush(movieLogic.prepareUpdate(searchMovie, movieRequest) );
+		logRepository.saveAndFlush(movieLogic.logUpdate(movieResponse));
+		response=movieLogic.responseToMovie(movieResponse, movieResponse.getMovieImages());
 		
 		return response;
 		
@@ -97,12 +101,11 @@ public class MovieAdminController {
 		
 		MovieRequest response = new MovieRequest();
 		
-		Optional<Movie> searchMovie = mRepository.findById(id);
+		Movie searchMovie = mRepository.findById(id)
+				.orElseThrow( () -> new MovieNotFoundException(id) );
 		
-		if(!searchMovie.isEmpty()) {
-			Movie movieResponse = mRepository.saveAndFlush(movieLogic.prepareUpdateAval(searchMovie.get(), movieRequest));
-			response=movieLogic.responseToMovie(movieResponse, movieResponse.getMovieImages());
-		}
+		Movie movieResponse = mRepository.saveAndFlush(movieLogic.prepareUpdateAval(searchMovie, movieRequest));
+		response=movieLogic.responseToMovie(movieResponse, movieResponse.getMovieImages());
 		
 		return response;
 	}
@@ -118,14 +121,13 @@ public class MovieAdminController {
 		
 		MovieRequest response = new MovieRequest();
 		
-		Optional<Movie> searchMovie = mRepository.findById(id);
-		
-		if(!searchMovie.isEmpty()) {
+		Movie searchMovie = mRepository.findById(id)
+				.orElseThrow( () -> new MovieNotFoundException(id) );
 			
-			iRepository.deleteAll(searchMovie.get().getMovieImages());
-			mRepository.delete(searchMovie.get());
+			iRepository.deleteAll(searchMovie.getMovieImages());
+			mRepository.delete(searchMovie);
 			response.setTitle("Movie Deleted");
-		}
+		
 		
 		return response;
 	}
@@ -143,17 +145,15 @@ public class MovieAdminController {
 		
 		MovieRequest response = new MovieRequest();
 		
-		Optional<Movie> searchMovie = mRepository.findById(id);
+		Movie searchMovie = mRepository.findById(id)
+				.orElseThrow( () -> new MovieNotFoundException(id) );
 		
-		
-		if(!searchMovie.isEmpty()) {
-			Movie movie = searchMovie.get();
-			List<MovieImage> newImages = movieLogic.requestToMovieImage(movie, movieRequest);
-			saveImages(newImages);
-			newImages.clear();
-			newImages=iRepository.getImagesByMovieId(id.intValue());
-			response = movieLogic.responseToMovie(movie,newImages);
-		}
+		Movie movie = searchMovie;
+		List<MovieImage> newImages = movieLogic.requestToMovieImage(movie, movieRequest);
+		saveImages(newImages);
+		newImages.clear();
+		newImages=iRepository.getImagesByMovieId(id.intValue());
+		response = movieLogic.responseToMovie(movie,newImages);
 		
 		return response;
 	}
@@ -169,11 +169,12 @@ public class MovieAdminController {
 		
 		MovieImageRequest response = new MovieImageRequest();
 		
+		MovieImage image =iRepository.findById(id)
+				.orElseThrow( () -> new ImageNotFoundException(id) );
 		
-		if(!iRepository.findById(id).isEmpty()) {
-			iRepository.deleteById(id);
-			response.setImage("Image Deleted");
-		}
+		iRepository.delete(image);
+		response.setImage("Image Deleted");
+		
 		
 		return response;
 	}
