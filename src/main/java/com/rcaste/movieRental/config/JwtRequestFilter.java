@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.rcaste.movieRental.models.Blacklist;
+import com.rcaste.movieRental.repositories.BlacklistRepository;
 import com.rcaste.movieRental.service.JwtUserDetailsService;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -28,6 +30,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
+	
+	@Autowired
+	BlacklistRepository bRepository;
 	
 	/**
 	 * Extrae token y lo valida para dar acceso
@@ -50,6 +55,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			} catch (ExpiredJwtException e) {
 				System.out.println("JWT Token has expired");
 			}
+			
+			//revisa si Token no se encuentra en Blacklist
+			Blacklist bl = bRepository.findByExpiredToken(jwtToken);
+			if(bl != null) {
+				System.out.println("token Expired");
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized Access");
+			}
+			//
+			
 		} else {
 			logger.warn("JWT Token does not begin with Bearer String");
 		}

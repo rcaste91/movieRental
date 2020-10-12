@@ -89,4 +89,16 @@ public class MovieViewController {
 		return movies;
 		
 	}
+	
+	
+	@RequestMapping(value="movies/public", method=RequestMethod.GET)
+	public List<Movie> getAllMoviesPublic(){
+		
+		List<Movie> movies = new ArrayList<Movie>();
+		
+		movies= mRepository.findAll();
+		movies.sort(Comparator.comparing(Movie::getTitle));
+		
+		return movies;
+	}
 }
