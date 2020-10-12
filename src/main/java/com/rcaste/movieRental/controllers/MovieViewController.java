@@ -7,6 +7,7 @@ import java.util.List;
 import javax.ws.rs.QueryParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,24 +24,31 @@ public class MovieViewController {
 	@Autowired
 	private MovieRepository mRepository;
 	
+	private int PAGE_SIZE;
+	
 	public MovieViewController() {
 		// TODO Auto-generated constructor stub
+		PAGE_SIZE=5;
 	}
 	
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value="movies/all", method=RequestMethod.GET)
-	public List<Movie> getMoviesByAval(@QueryParam("aval") String aval ) {
+	public List<Movie> getMoviesByAval(@QueryParam("page") Integer page, @QueryParam("aval") String aval ) {
 		
 		List<Movie> movies = new ArrayList<Movie>();
+		
+		if(page == null || page<0 ) {
+			page=0;
+		}
 		
 		if( aval != null ) {
 			
 			if( (aval.equalsIgnoreCase("y")) || (aval.equalsIgnoreCase("n")) ) {
-				movies=mRepository.findByAvailabilityOrderByTitleAsc(aval.toLowerCase());
+				movies = mRepository.findByAvailabilityOrderByTitleAsc(aval.toLowerCase(), PageRequest.of(page, PAGE_SIZE));
 			}
 			
 		}else {
-			movies= mRepository.findAll();
+			movies= mRepository.findMoviesPag(PageRequest.of(page, PAGE_SIZE));
 		}
 		
 		return movies;
@@ -48,20 +56,23 @@ public class MovieViewController {
 	
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value="movies", method=RequestMethod.GET)
-	public List<Movie> getMoviesForUser(@QueryParam("sort") String sort ) {
+	public List<Movie> getMoviesForUser(@QueryParam("page") Integer page, @QueryParam("sort") String sort ) {
 		
 		List<Movie> movies = new ArrayList<Movie>();
+		
+		if(page == null || page<0) {
+			page=0;
+		}
 		
 		if( sort != null ) {
 			
 			if(sort.equalsIgnoreCase("likes")) {
-				movies=mRepository.findByAvailabilityOrderByTitleAsc("y");
+				 movies = mRepository.findByAvailabilityOrderByTitleAsc("y", PageRequest.of(page, PAGE_SIZE)); 
 				movies.sort( Comparator.comparingInt(Movie::getMovieLikeSize).reversed() );
 			}
 			
 		}else {
-			movies=mRepository.findByAvailabilityOrderByTitleAsc("y");
-			
+			 movies = mRepository.findByAvailabilityOrderByTitleAsc("y", PageRequest.of(page, PAGE_SIZE));
 		}
 		
 		return movies;

@@ -56,6 +56,7 @@ public class Movie {
 	@JsonIgnore
 	private List<Sale> sales;
 	
+	
 	public Movie() {
 		
 	}
@@ -87,7 +88,6 @@ public class Movie {
 	public int getMovieLikeSize() {
 		return movieLike.size();
 	}
-
 
 
 	public void setMovieLike(List<MovieLike> movieLike) {
@@ -166,5 +166,4 @@ public class Movie {
 		this.availability = availability;
 	}
 
-	
 }
