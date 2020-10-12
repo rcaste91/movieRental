@@ -83,6 +83,10 @@ public class Movie {
 	public List<MovieLike> getMovieLike() {
 		return movieLike;
 	}
+	
+	public int getMovieLikeSize() {
+		return movieLike.size();
+	}
 
 
 

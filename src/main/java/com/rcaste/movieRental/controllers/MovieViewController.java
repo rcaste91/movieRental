@@ -1,6 +1,7 @@
 package com.rcaste.movieRental.controllers;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.ws.rs.QueryParam;
@@ -35,7 +36,7 @@ public class MovieViewController {
 		if( aval != null ) {
 			
 			if( (aval.equalsIgnoreCase("y")) || (aval.equalsIgnoreCase("n")) ) {
-				movies=mRepository.findByAvailability(aval.toLowerCase());
+				movies=mRepository.findByAvailabilityOrderByTitleAsc(aval.toLowerCase());
 			}
 			
 		}else {
@@ -47,16 +48,27 @@ public class MovieViewController {
 	
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value="movies", method=RequestMethod.GET)
-	public List<Movie> getMoviesForUser( ) {
+	public List<Movie> getMoviesForUser(@QueryParam("sort") String sort ) {
 		
 		List<Movie> movies = new ArrayList<Movie>();
-		movies=mRepository.findByAvailability("y");
+		
+		if( sort != null ) {
+			
+			if(sort.equalsIgnoreCase("likes")) {
+				movies=mRepository.findByAvailabilityOrderByTitleAsc("y");
+				movies.sort( Comparator.comparingInt(Movie::getMovieLikeSize).reversed() );
+			}
+			
+		}else {
+			movies=mRepository.findByAvailabilityOrderByTitleAsc("y");
+			
+		}
 		
 		return movies;
 	}
 	
 	@PreAuthorize("hasRole('ROLE_USER') OR hasRole('ROLE_ADMIN')")
-	@RequestMapping(value="movies/{name}", method=RequestMethod.GET)
+	@RequestMapping(value="movies/search/{name}", method=RequestMethod.GET)
 	public List<Movie> searchMovieByName(@PathVariable String name){
 		
 		List<Movie> movies = new ArrayList<Movie>();
