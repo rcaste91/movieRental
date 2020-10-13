@@ -235,7 +235,8 @@ public class MovieUserLogic {
 		try {
 			
 			SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+			//isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+			isoFormat.setTimeZone(TimeZone.getTimeZone("GMT-6"));
 			Date date = isoFormat.parse(dateString);
 			return date;
 			
