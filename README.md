@@ -27,6 +27,11 @@ password: user
 
 the response will contain a token with a 15 minute time limit. This token must be sent for some endpoints. It will need to be sent as a header parameter under the key name AUTHORIZATION with value BEARER {TOKEN} 
 
+## Logout
+
+Endpoint: https://rcmovierental.herokuapp.com/ulogout
+Description: logs user out, token is no longer valid
+
 ## Movie Administration
 
 The following methods can require an ADMIN role.
@@ -173,8 +178,7 @@ Payload example:
 ```
 Notes:
 -date values must have format "yyyy-mm-ddThh:ss" in order to avoid improper date conversion
--subtotal and total values are calculated
--a response with empty values means a dateReturn has a date that occurs before the rentDate or the movie is no longer in stock
+-a response with empty values means a dateReturn has a date that occurs before the rentDate or the movie is no longer in stock or is unavailable
 -everytime a movie is rented, its stock decreases by one
 Response: JSON with RENT record created with an ID.
 
@@ -201,28 +205,80 @@ Notes:
 -everytime a movie is returned, its stock increases by one
 Response: JSON with RENT record updated.
 
-###Return a rented a movie
+###Sell a movie
 
-Endpoint: https://rcmovierental.herokuapp.com/api/v1/movies/rent
-Description: updates a rented movie
+Endpoint: https://rcmovierental.herokuapp.com/api/v1/movies/sell
+Description: sells a movie and creates a record on the SALES table
 Parameter:
-Type: PUT 
+Type: POST
 Payload example:
 ```json
 {
-    "rentId": 7,
-    "userId": 1,
-    "movieId": 7,
-    "rentDate": "2020-10-31T18:25",
-    "dateReturn": "2020-11-05T18:25",
-    "actualReturn": "2020-11-05T18:25"
+    "movieId": 6,
+    "userId": 2,
+    "saleDate": "2020-10-11T05:00",
+    "quantity": 2
 }
 ```
 Notes:
 -date values must have format "yyyy-mm-ddThh:ss" in order to avoid improper date conversion
--subtotal and total values are calculated
--everytime a movie is returned, its stock increases by one
+-a response with empty values means the movie is not available
+-everytime a movie is sold, its stock decreases by one
 Response: JSON with RENT record updated.
+
+## View Actions
+
+###Get all movies by availability
+
+Endpoint: https://rcmovierental.herokuapp.com/api/v1/movies/all
+Role: ADMIN
+Description: gets a list of all movies paginated, can be sorted by availability
+Query Parameters:
+					-page: number of page to be brought, 5 results are shown per page. First page is 0
+					-aval: sort by availability by adding aval=y or aval=n
+Type: GET
+Notes: 
+	-if aval value isn't present, all movies will be shown
+	-if page value isn't present, the fist page will be sent.
+Response: JSON with movies filtered.
+
+###Get all movies by likes
+
+Endpoint: https://rcmovierental.herokuapp.com/api/v1/movies
+Role: USER
+Description: gets a list of all available movies paginated, can be sorted by likes
+Query Parameters:
+					-page: number of page to be brought, 5 results are shown per page. First page is 0
+					-sort: sort by likes by adding sort=likes
+Type: GET
+Notes: 
+	-if sort value isn't present, all available movies will be shown alphabetically
+	-if page value isn't present, the fist page will be sent.
+Response: JSON with movies filtered.
+
+###Search movies
+
+Endpoint: https://rcmovierental.herokuapp.com/api/v1/movies/search/{name}
+Role: USER / ADMIN
+Description: Searches for a movie by name
+Parameters:
+					-name: name of the movie to be searched
+Type: GET
+Notes: 
+	-name parameter searches for movies containing the value
+Response: JSON with search results.
+
+###Public movie view
+
+Endpoint: https://rcmovierental.herokuapp.com/api/v1/movies/public
+Role: none
+Description: Displays all movies
+Type: GET
+Notes: 
+	-method can be accesed without being logged in
+Response: JSON with movies.
+
+
 
 ## Author
 Ronald Castellon
