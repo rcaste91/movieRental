@@ -100,7 +100,7 @@ public class MovieUserController {
 		
 		int stock=movie.getStock();
 		
-		if(stock >=1) {
+		if(stock >=1 && movie.getAvailability().equalsIgnoreCase("y")) {
 			Rent prepareRent =logic.prepareRentInsert(movieRent, movie, user);
 			
 			if(prepareRent.getSubtotal()>0) {
@@ -156,7 +156,7 @@ public class MovieUserController {
 		
 		int stock=movieFind.getStock();
 		
-		if(request.getQuantity()<=stock) {
+		if(request.getQuantity()<=stock  && movieFind.getAvailability().equalsIgnoreCase("y")) {
 			
 			Sale insertSale=logic.prepareSaleInsert(request, movieFind, userFind, movieFind.getSalePrice());
 			Sale movieSold = sRepository.saveAndFlush(insertSale);
