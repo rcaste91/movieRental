@@ -50,7 +50,12 @@ public class JwtAuthenticationController {
 	@Autowired
     private RoleRepository repositoryR;
 	
-	
+	/**
+	 * Autentica y crea TOKEN
+	 * @param authenticationRequest JSON de entrada con datos a autenticar
+	 * @return JSON con TOKEN 
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 		
@@ -65,6 +70,10 @@ public class JwtAuthenticationController {
 		return ResponseEntity.ok(new JwtResponse(token));
 	}
 	
+	/**
+	 * Metodo de prueba que crea 2 usuarios uno admin y otro USER para pruebas
+	 * @return confirmacion de usuarios creados
+	 */
 	@RequestMapping(value = "/init", method = RequestMethod.GET)
 	public String createInitUsers() {
 		
@@ -74,12 +83,20 @@ public class JwtAuthenticationController {
 		return "Test Users Created";
 	}
 	
+	/**
+	 * Metodo de confirmacion de servicio disponible
+	 * @return mensaje de confirmacion
+	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String status() {
 
 		return "Movie Rental App is online";
 	}
 	
+	/**
+	 * Creacion de usuario Admin
+	 * @return Usuario Admin que sera ingresado
+	 */
 	private Users returnAdmin() {
 		
 		Optional<Role> role = repositoryR.findById((long) 1);
@@ -95,6 +112,10 @@ public class JwtAuthenticationController {
 		return admin;
 	}
 	
+	/**
+	 * Creacion de usuario USER
+	 * @return usuario User que sera ingresado
+	 */
 	private Users returnUser() {
 		
 		Optional<Role> role = repositoryR.findById((long) 2);
@@ -109,7 +130,12 @@ public class JwtAuthenticationController {
 		return admin;
 	}
 		
-
+/**
+ * Autentica usuario en base a usuario y pwd
+ * @param username usuario
+ * @param password contraseña
+ * @throws Exception
+ */
 	private void authenticate(String username, String password) throws Exception {
 		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));

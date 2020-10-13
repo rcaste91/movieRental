@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rcaste.movieRental.controllers.errors.MovieNotFoundException;
+import com.rcaste.movieRental.controllers.errors.RentNotFoundException;
 import com.rcaste.movieRental.controllers.errors.UserNotFoundException;
 import com.rcaste.movieRental.logic.MovieUserLogic;
 import com.rcaste.movieRental.models.Movie;
@@ -54,7 +55,11 @@ public class MovieUserController {
 		logic=new MovieUserLogic();
 	}
 	
-	
+	/**
+	 * Da LIKE a una pelicula, guarda registro en BD
+	 * @param movieLike JSON  de entrada de datos de usuario y pelicula
+	 * @return JSON de salida confirmando ingreso de registro
+	 */
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value="movies/like", method=RequestMethod.POST)
 	public LikeMovieRequest likeMovie(@RequestBody LikeMovieRequest movieLike) {
@@ -75,6 +80,11 @@ public class MovieUserController {
 		
 	}
 	
+	/**
+	 * Renta de pelicula, ingresa registro en BD
+	 * @param movieRent JSON de entrada con datos de renta
+	 * @return JSON de salida confirmando registro ingresado
+	 */
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value="movies/rent", method=RequestMethod.POST)
 	public RentRequest rentMovie (@RequestBody RentRequest movieRent) {
@@ -104,6 +114,11 @@ public class MovieUserController {
 		
 	}
 	
+	/**
+	 * Actualizacion de renta en BD para regresar pelicula
+	 * @param movieRent JSON de entrada de renta de pelicula
+	 * @return JSON de salida confirmando actualizacion de registro de renta correcta
+	 */
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value="movies/rent", method=RequestMethod.PUT)
 	public RentRequest returnRentMovie(@RequestBody RentRequest movieRent) {
@@ -112,7 +127,7 @@ public class MovieUserController {
 		float delay=cRepository.findDelay("delay");
 		
 		Rent rentFind = rRepository.findById((long) movieRent.getRentId())
-				.orElseThrow(() -> new UserNotFoundException((long) movieRent.getRentId()));
+				.orElseThrow(() -> new RentNotFoundException((long) movieRent.getRentId()));
 		
 		Rent rentUpdate = rRepository.saveAndFlush(logic.prepareRentUpdate(movieRent, rentFind,delay));
 		updateMovieStock(rentFind.getMovie(), -1);
@@ -121,6 +136,11 @@ public class MovieUserController {
 		return response;
 	}
 	
+	/**
+	 * Venta de pelicula, crea registro en BD
+	 * @param request JSON de entrada de venta de pelicula
+	 * @return JSON de salida confirmando ingreso correcto de registro
+	 */
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value="movies/sell", method=RequestMethod.POST)
 	public SaleRequest sellMovie(@RequestBody SaleRequest request) {
@@ -147,6 +167,11 @@ public class MovieUserController {
 		return response;
 	}
 	
+	/**
+	 * Actualizacion de campo STOCK de pelicula por cada renta / venta
+	 * @param m MOVIE que sera actualizada
+	 * @param quantity cantidad de STOCK a agregar o restar
+	 */
 	private void updateMovieStock(Movie m, int quantity) {
 		
 		m.setStock( m.getStock()-quantity );

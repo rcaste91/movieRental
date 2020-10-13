@@ -31,6 +31,12 @@ public class MovieViewController {
 		PAGE_SIZE=5;
 	}
 	
+	/**
+	 * Vista de todas las peliculas paginadas y filtradas (opcional) por disponibilidad
+	 * @param page numero de pagina de resultados
+	 * @param aval filtro opcional de disponibilidad
+	 * @return Lista de peliculas de acuerdo a filtro y pagina
+	 */
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value="movies/all", method=RequestMethod.GET)
 	public List<Movie> getMoviesByAval(@QueryParam("page") Integer page, @QueryParam("aval") String aval ) {
@@ -54,6 +60,12 @@ public class MovieViewController {
 		return movies;
 	}
 	
+	/**
+	 * Vista de peliculas paginadas con filtro opcional por LIKES
+	 * @param page numero de pagina de resultados
+	 * @param sort filtro para ordenar por LIKES
+	 * @return Lista de peliculas de acuerdo a filtro y pagina
+	 */
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value="movies", method=RequestMethod.GET)
 	public List<Movie> getMoviesForUser(@QueryParam("page") Integer page, @QueryParam("sort") String sort ) {
@@ -78,6 +90,11 @@ public class MovieViewController {
 		return movies;
 	}
 	
+	/**
+	 * Busqueda de peliculas
+	 * @param name nombre de MOVIE a buscar
+	 * @return Lista de peliculas de acuerdo a busqueda
+	 */
 	@PreAuthorize("hasRole('ROLE_USER') OR hasRole('ROLE_ADMIN')")
 	@RequestMapping(value="movies/search/{name}", method=RequestMethod.GET)
 	public List<Movie> searchMovieByName(@PathVariable String name){
@@ -90,7 +107,10 @@ public class MovieViewController {
 		
 	}
 	
-	
+	/**
+	 * Lista de peliculas visible para usuarios no autenticados
+	 * @return Lista de peliculas completa
+	 */
 	@RequestMapping(value="movies/public", method=RequestMethod.GET)
 	public List<Movie> getAllMoviesPublic(){
 		

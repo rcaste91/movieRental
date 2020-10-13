@@ -128,7 +128,10 @@ public class MovieLogic {
 	public Movie prepareUpdateAval(Movie currentMovie, MovieRequest request) {
 		
 		Movie updateMovie = currentMovie;
-		updateMovie.setAvailability(request.getAvailability());
+		
+		if(request.getAvailability().equalsIgnoreCase("y") || request.getAvailability().equalsIgnoreCase("n")) {
+			updateMovie.setAvailability(request.getAvailability());
+		}
 		
 		return updateMovie;
 	}
