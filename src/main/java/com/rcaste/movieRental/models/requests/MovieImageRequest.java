@@ -2,6 +2,7 @@ package com.rcaste.movieRental.models.requests;
 
 public class MovieImageRequest {
 
+	private int imageId;
 	private String  image;
 	
 	public MovieImageRequest() {
@@ -9,6 +10,11 @@ public class MovieImageRequest {
 	}
 	
 	public MovieImageRequest(String image) {
+		this.image=image;
+	}
+	
+	public MovieImageRequest(int id ,String image) {
+		this.imageId=id;
 		this.image=image;
 	}
 
@@ -21,4 +27,15 @@ public class MovieImageRequest {
 	}
 	
 	
+	
+	public int getImageId() {
+		return imageId;
+	}
+
+
+
+	public void setImageId(int imageId) {
+		this.imageId = imageId;
+	}
+
 }
