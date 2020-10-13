@@ -84,7 +84,7 @@ public class MovieLogic {
 		
 		List<MovieImageRequest> images = new ArrayList<MovieImageRequest>();
 		for (MovieImage mi : movieImage) {
-			images.add(new MovieImageRequest(mi.getMoviePhoto()));
+			images.add(new MovieImageRequest(mi.getImageId().intValue(),mi.getMoviePhoto()));
 		}
 		
 		MovieRequest movieRequest = new MovieRequest();
